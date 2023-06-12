@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} Blog Detail | Blog App {% endblock %}
+{% block body %}
+<!-- Home Page -->
+<section class="container">
+<div class="row">
+    <div class="container mt-4">
+        <div class="row">
+          <div class="col-lg-8">
+            <h2>Blog Title</h2>
+            <p>Published on January 1, 2023, By Admin</p>
+            <img src="{% static 'images/python.png' %}" alt="Blog Image" class="img-fluid">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis eu nunc lacus. Morbi et interdum dolor, sit amet interdum nunc. Nam porttitor justo non sapien efficitur facilisis. Proin fringilla tortor non metus rutrum rhoncus. Mauris venenatis faucibus odio et posuere. Sed mollis dignissim risus ac auctor. Curabitur sed vulputate lacus. Donec sed lacinia metus. In varius urna vel nisi tincidunt, eget venenatis mauris laoreet. Suspendisse gravida metus arcu, vel ullamcorper odio egestas vel. Donec vitae ipsum et felis vulputate condimentum. Vivamus sed lobortis ante. Duis finibus, lorem non pharetra egestas, lectus est consectetur orci, vitae bibendum metus est vitae justo. Nulla eget erat metus. Nullam sed elit tristique, dapibus neque vitae, dictum dui. Nam sit amet enim vel orci blandit vulputate.</p>
+            <p>Sed malesuada magna a suscipit auctor. Vivamus non lacinia dolor. In varius diam sed nisi feugiat tincidunt. Nullam dictum auctor ligula, vitae varius libero efficitur vitae. Ut non cursus lectus. Sed fermentum lorem in odio consectetur eleifend. Sed accumsan semper turpis vel viverra. Fusce a iaculis massa, nec posuere ligula. In non luctus mauris. Proin cursus turpis in tellus mollis, at euismod neque cursus. Nunc et diam nisi. Suspendisse tristique rutrum nunc ac scelerisque. Cras hendrerit fermentum viverra. Aliquam consequat, nunc id convallis rhoncus, est dolor aliquam odio, ut euismod ligula massa vitae lectus. Quisque at mi sit amet felis cursus pellentesque in sit amet quam. Nam id convallis sem. Sed pellentesque pellentesque enim, a dapibus mi malesuada at.</p>
+          </div>
+          <div class="col-lg-4">
+            <h4>Recent Posts</h4>
+            <ul class="list-group">
+              <li class="list-group-item">Blog Post 1</li>
+              <li class="list-group-item">Blog Post 2</li>
+              <li class="list-group-item">Blog Post 3</li>
+            </ul>
+            <h4 class="my-3">Tags</h4>
+            <ul class="list-group">
+              <li class="list-group-item">Education</li>
+              <li class="list-group-item">Technology</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+</div>
+</section>
+
+{% endblock %}
