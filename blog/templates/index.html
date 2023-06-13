@@ -18,21 +18,20 @@
 <div class="row">
     {% if posts %}
         {% for post in posts %}
-        <div class="col-md-4 my-2">
+        <div class="col-md-4 my-2">            
             <div class="card" style="">
                 <img src="{{post.image.url}}" class="card-img-top" alt="...">
                 <div class="card-body">
-                    <h5 class="card-title">{{post.title}}</h5>
+                    <a href="{% url 'blog:blogdetail' post.slug %}" style="text-decoration:none;"><h5 class="card-title text-dark">{{post.title}}</h5></a>
                     <p><strong>by {{post.author}}</strong></p>
                     <p class="card-text"> {{post.subtitle}}</p>
                     <div class="{% if current_path == 'myblog' %} d-flex {% endif %}">
                         <a href="{% url 'blog:blogdetail' post.slug %}" class="btn btn-primary m-auto">Read more</a>
                         {% if current_path == 'myblog' %}
                         <a href="javascript:void(0);" onclick="deletePost('{{post.id}}')" class="btn btn-primary m-auto">Delete</a>
-                        <a href="#" class="btn btn-primary m-auto">Edit</a>
+                        <a href="{% url 'blog:editblog' post.id %}" class="btn btn-primary m-auto">Edit</a>
                         {% endif %}
                     </div>
-                    
                 </div>
             </div>
         </div>

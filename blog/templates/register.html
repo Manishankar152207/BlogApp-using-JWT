@@ -8,6 +8,7 @@
         <div class="col-md-8 my-5 mx-auto">
             <h2 class="mb-3">Register</h2>
             <form action="javascript:void(0);">
+                {% csrf_token %}
                 <div class="mb-3">
                     <label for="exampleInputUsername" class="form-label">Username</label>
                     <input type="text" class="form-control" id="exampleInputUsername" aria-describedby="emailHelp" required>
@@ -37,7 +38,7 @@
         $.ajax({
             type : "POST",
             url : "/register/",
-            data : {'username' : $('#exampleInputUsername').val(), 'email': $('#exampleInputEmail1').val(), 'password1': $('#exampleInputPassword1').val(), 'password2': $('#exampleInputPassword2').val()},
+            data : {'csrfmiddlewaretoken':$("input[name='csrfmiddlewaretoken']").val(), 'username' : $('#exampleInputUsername').val(), 'email': $('#exampleInputEmail1').val(), 'password1': $('#exampleInputPassword1').val(), 'password2': $('#exampleInputPassword2').val()},
             success : function(response) {     
                 if(response.success == true){     
                      window.location.href = '/login/';

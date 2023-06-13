@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from .serializers import UserRegistrationSerializer, UserLoginSerializer
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-import json
-from api.models import BlogPost, Tag, Category
+from django.views.decorators.csrf import csrf_exempt
+from api.models import BlogPost, Category
 from django.urls import resolve
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -22,15 +22,23 @@ class MyBlogView(APIView):
         return render(request, 'index.html', context={'posts':posts, 'current_path':resolve(request.path).url_name})
     
     def get(self, request):
-        print(request.COOKIES.get('refresh_token'))
         posts = BlogPost.objects.filter(author=request.user)
         return render(request, 'index.html', context={'posts':posts, 'current_path':resolve(request.path).url_name})
 
 class AddBlogView(APIView):
     def get(self, request):
-        tags = Tag.objects.all()
         category = Category.objects.all()
-        return render(request, 'addblog.html', context={'tags': tags,'category': category, 'current_path':resolve(request.path).url_name})
+        return render(request, 'addblog.html', context={'category': category, 'current_path':resolve(request.path).url_name})
+
+class EditBlogView(APIView):
+    def get(self, request, pk, format=None):
+        post = BlogPost.objects.filter(id=pk).exists()
+        if post:
+            post = BlogPost.objects.filter(id=pk).first()
+            category = Category.objects.all()
+            return render(request, 'editblog.html', context={'post':post, 'category': category, 'current_path':resolve(request.path).url_name})
+        else:
+            return render(request, 'page_404.html')
 
 class BlogDetailView(APIView):
     def get(self, request, the_slug, format=None):
@@ -67,7 +75,6 @@ class UserLoginView(APIView):
                 refresh = RefreshToken.for_user(user)
                 messages.success(request, "You are logged in successfully." )
                 response = Response()
-                # response.set_cookie(key='refresh_token', value = str(refresh), httponly=True)
                 response.data = {'success': True, 'access_token': str(refresh.access_token), 'refresh_token':str(refresh)}
                 return response
             else:
@@ -76,7 +83,9 @@ class UserLoginView(APIView):
             return Response(serializer.errors, status=400)
     
     def get(self, request):
-        return render(request, 'login.html', context={'current_path':resolve(request.path).url_name})
+        if not request.user.is_authenticated:
+            return render(request, 'login.html', context={'current_path':resolve(request.path).url_name})
+        return redirect('blog:home')
 
 def logout_view(request):
     if request.user.is_authenticated:

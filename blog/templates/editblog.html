@@ -1,50 +1,58 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %} Add Blog | Blog App {% endblock %}
+{% block title %} Edit Blog | Blog App {% endblock %}
 {% block body %}
 <!-- Register -->
 <section class="container">
     <div class="row">
         <div class="col-md-8 my-5 mx-auto">
-            <h2 class="mb-3">Add Blog</h2>
+            <div class="row">
+                <img src="{{post.image.url}}" alt="">
+            </div>
+            <h2 class="my-3">Edit Blog</h2>
             <form action="javascript:void(0);"  id="blog-form">
                 <div class="mb-3">
                     <label for="title" class="form-label">Title</label>
-                    <input type="text" class="form-control" name="title" maxlength="200" id="title" required>
+                    <input type="text" class="form-control" value="{{post.title}}" name="title" maxlength="200" id="title">
                 </div>
                 <div class="mb-3">
                     <label for="subtitle" class="form-label">Sub-Title</label>
-                    <input type="text" class="form-control" name="subtitle" maxlength="250" id="subtitle" required>
+                    <input type="text" class="form-control" name="subtitle" value="{{post.subtitle}}"  maxlength="250" id="subtitle">
                 </div>
                 <div class="mb-3">
                     <label for="slug" class="form-label">Slug</label>
-                    <input type="text" class="form-control" name="slug" maxlength="250" id="slug" required>
+                    <input type="text" class="form-control" name="slug" value="{{post.slug}}"  maxlength="250" id="slug">
                 </div>
                 <div class="mb-3">
                     <label for="image" class="form-label">Image</label>
-                    <input type="file" class="form-control" name="image" id="fileInput" required>
+                    <input type="file" class="form-control" name="image"  id="fileInput">
                 </div>
                 <div class="mb-3">
                     <label for="body" class="form-label">Body</label>
-                    <textarea class="form-control" name="body" id="body" style="height: 266px;" required></textarea>
+                    <textarea class="form-control" name="body" id="body" style="height: 266px;">{{post.body}}</textarea>
                 </div>
                 <div class="mb-3">
                     <label for="meta_description" class="form-label">Meta Description</label>
-                    <input type="text" class="form-control" name="meta_description" maxlength="150" id="meta_description" required>
+                    <input type="text" class="form-control" name="meta_description" value="{{post.meta_description}}"  maxlength="150" id="meta_description">
                 </div>
                 <div class="mb-3">
                     <label for="meta_keyword" class="form-label">Meta Keywords</label>
-                    <input type="text" class="form-control" name="meta_keyword" maxlength="150" id="meta_keyword" required>
+                    <input type="text" class="form-control" name="meta_keyword" maxlength="150" value="{{post.meta_keyword}}"  id="meta_keyword">
                 </div>
                 <div class="mb-3">
-                    <input type="hidden" class="form-control" name="author" value="{{user.id}}" id="author" >
+                    <input type="hidden" class="form-control" name="author" value="{{user.id}}" id="author">
                 </div>
-                <div class="mb-3">
+                <div class="mb-3">     
+                    {{post.category}}       
                     <label for="category" class="form-label">Category</label>
-                    <select name="category" id="category" class="form-control" required>
+                    <select name="category" id="category" class="form-control">
                         <option value="">Select</option>
                         {% for cat in category %}
+                            {% if cat.name == post.category.name %}
+                            <option value="{{cat.id}}" selected>{{cat.name}}</option>
+                            {% else %}
                             <option value="{{cat.id}}">{{cat.name}}</option>
+                            {% endif %}
                         {% endfor %}                       
                     </select>
                 </div>
@@ -62,12 +70,16 @@
         const fileInput = document.getElementById('fileInput');
         // Get the form data
         var formData =  new FormData(this);
-        formData.append('image', fileInput.files[0])
+        if(fileInput.files[0]){
+            formData.append('image', fileInput.files[0])
+        }else{
+            formData.append('image', '')
+        }
         var access_token = sessionStorage.getItem('access_token');
         // Send the data via Ajax request
         $.ajax({
-            url: '/api/posts/',
-            type: 'POST',
+            url: '/api/posts/'+'{{post.id}}'+'/',
+            type: 'PUT',
             processData: false,
             contentType: false,
             headers: {
@@ -75,18 +87,18 @@
                     },
             data: formData,
             success: function(response, status, xhr) {
-                if(xhr.status == 201){
-                    alert("Blog Posted Successfully.")
+                if(xhr.status == 200){
+                    alert("Blog Edited Successfully.")
                     window.location.href = '/my-blog/'
                 }
             },
             error: function(xhr, errmsg, err) {
                 // Handle the error response
                 if(xhr.status == 400){
-                    alert("Please fill form carefully.")
+                    alert("Please check form fields")
                 }
                 if(xhr.status == 401){
-                    alert("Something went wrong.")    
+                    alert("Unauthorised.")    
                     window.location.href = '/login/';                   
                 }
             }
