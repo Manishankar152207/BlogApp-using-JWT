@@ -4,63 +4,102 @@
 {% block body %}
 <!-- Home Page -->
 <section class="container">
+    <div class="row">
+        <div class="col-md-8 my-2 mx-auto">
+          {% for message in messages %}
+          <div class="alert alert-primary mt-2 " role="alert">
+              {{message}}
+          </div>
+          {% endfor %}
+        </div>
+    </div>
+</section>
+<section class="container">
 <div class="row">
-    <div class="col-md-4 my-2">
-        <div class="card" style="">
-            <img src="{% static 'images/python.png' %}" class="card-img-top" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">Carrier in Python</h5>
-                <p><strong>by Admin</strong></p>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                <a href="#" class="btn btn-primary">Read more</a>
+    {% if posts %}
+        {% for post in posts %}
+        <div class="col-md-4 my-2">
+            <div class="card" style="">
+                <img src="{{post.image.url}}" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">{{post.title}}</h5>
+                    <p><strong>by {{post.author}}</strong></p>
+                    <p class="card-text"> {{post.subtitle}}</p>
+                    <div class="{% if current_path == 'myblog' %} d-flex {% endif %}">
+                        <a href="{% url 'blog:blogdetail' post.slug %}" class="btn btn-primary m-auto">Read more</a>
+                        {% if current_path == 'myblog' %}
+                        <a href="javascript:void(0);" onclick="deletePost('{{post.id}}')" class="btn btn-primary m-auto">Delete</a>
+                        <a href="#" class="btn btn-primary m-auto">Edit</a>
+                        {% endif %}
+                    </div>
+                    
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-4 my-2">
-        <div class="card" style="">
-            <img src="{% static 'images/python.png' %}" class="card-img-top" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">Carrier in Python</h5>
-                <p><strong>by Admin</strong></p>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                <a href="#" class="btn btn-primary">Read more</a>
-            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-primary mt-2 " role="alert">
+            No Blog posted yet. 
         </div>
-    </div>
-    <div class="col-md-4 my-2">
-        <div class="card" style="">
-            <img src="{% static 'images/python.png' %}" class="card-img-top" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">Carrier in Python</h5>
-                <p><strong>by Admin</strong></p>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                <a href="#" class="btn btn-primary">Read more</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 my-2">
-        <div class="card" style="">
-            <img src="{% static 'images/python.png' %}" class="card-img-top" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">Carrier in Python</h5>
-                <p><strong>by Admin</strong></p>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                <a href="#" class="btn btn-primary">Read more</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 my-2">
-        <div class="card" style="">
-            <img src="{% static 'images/python.png' %}" class="card-img-top" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">Carrier in Python</h5>
-                <p><strong>by Admin</strong></p>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                <a href="#" class="btn btn-primary">Read more</a>
-            </div>
-        </div>
-    </div>
+    {% endif %}
+    
 </div>
 </section>
+{% endblock %}
 
+{% block javascript %} 
+<script>
+    function getAccessTokenAfterTokenExpire(){
+        var refresh_token = sessionStorage.getItem('refresh_token');
+        $.ajax({
+            type : "POST",
+            url : "/token/refresh/",
+            data : {'refresh' : refresh_token},
+            success : function(response, status, xhr) {                     
+                if(xhr.status == 200){ 
+                    // console.log(response);
+                    sessionStorage.setItem('access_token', response.access);
+                }else{
+                    alert("Something went wrong.")
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                alert("Something went wrong.")
+            }    
+        })
+    }
+    
+
+    function deletePost(id){ 
+        if (confirm("Are you sure you want delete Post!")) {
+            var access_token = sessionStorage.getItem('access_token');
+            $.ajax({
+                type : "DELETE",
+                url : "/api/posts/"+id,
+                headers: {
+                        "Authorization": "Bearer " + access_token
+                    },
+                data : {},
+                success : function(response, status, xhr) {     
+                    if(xhr.status == 204){ 
+                        alert("Post Deleted Successfully.")   
+                        window.location.href = '/my-blog/';
+                    }else{
+                        alert("Something went wrong.")
+                    }
+                },
+                error: function(xhr, errmsg, err) {
+                    if(xhr.status == 400){
+                        alert(JSON.parse(xhr.responseText).non_field_errors)
+                    }
+                    if(xhr.status == 401){
+                        alert(JSON.parse(xhr.responseText).error)    
+                        window.location.href = '/login/';                   
+                    }
+                }                        
+            });
+        }       
+       
+    }
+</script>
 {% endblock %}

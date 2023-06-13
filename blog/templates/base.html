@@ -5,7 +5,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %} {% endblock %}</title>
+    {% block meta %}{% endblock %}
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script
+          src="https://code.jquery.com/jquery-3.7.0.min.js"
+          integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
+          crossorigin="anonymous"></script>
   </head>
   <body>
     <nav class="navbar bg-dark navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
@@ -17,30 +23,38 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="{% url 'blog:home' %}">Home</a>
+                <a class="nav-link {% if current_path == 'home' %} active {% endif %}" aria-current="page" href="{% url 'blog:home' %}">Home</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'blog:register' %}">Register</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'blog:login' %}">Login</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'blog:myblog' %}">MyBlog</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'blog:addblog' %}">Add Blog</a>
-                </li>
+                  <a class="nav-link {% if current_path == 'register' %} active {% endif %}" href="{% url 'blog:register' %}">Register</a>
+                </li>                         
+                {% if is_login %}
+                  <li class="nav-item">
+                    <a class="nav-link {% if current_path == 'myblog' %} active {% endif %}" href="{% url 'blog:myblog' %}">MyBlog</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link {% if current_path == 'addblog' %} active {% endif %}" href="{% url 'blog:addblog' %}">Add Blog</a>
+                  </li>
+                {% endif %}
+                {% if is_login %}
+                  <li class="nav-item">
+                    <a class="nav-link {% if current_path == 'logout' %} active {% endif %}" href="{% url 'blog:logout' %}">Logout</a>
+                  </li>
+                {% else %}
+                  <li class="nav-item">
+                    <a class="nav-link {% if current_path == 'login' %} active {% endif %}" href="{% url 'blog:login' %}">Login</a>
+                  </li>
+                {% endif %}    
             </ul>
             </div>
         </div>
-    </nav>
-    {% block body %} {% endblock %}
+    </nav>  
+  {% block body %} {% endblock %}
+  <footer class="bg-dark text-white text-center py-3 mt-4">
+    &copy; 2023 Blog. All rights reserved.
+  </footer>
 
-    <footer class="bg-dark text-white text-center py-3 mt-4">
-      &copy; 2023 Blog. All rights reserved.
-    </footer>
-
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+  {% block javascript %} {% endblock %}
   </body>
 </html>

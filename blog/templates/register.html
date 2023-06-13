@@ -7,23 +7,48 @@
     <div class="row">
         <div class="col-md-8 my-5 mx-auto">
             <h2 class="mb-3">Register</h2>
-            <form action="" method="post">
+            <form action="javascript:void(0);">
+                <div class="mb-3">
+                    <label for="exampleInputUsername" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="exampleInputUsername" aria-describedby="emailHelp" required>
+                </div>
                 <div class="mb-3">
                     <label for="exampleInputEmail1" class="form-label">Email address</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" required>
                     <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
                 </div>
                 <div class="mb-3">
                     <label for="exampleInputPassword1" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="exampleInputPassword1">
+                    <input type="password" class="form-control" id="exampleInputPassword1" required>
                 </div>
                 <div class="mb-3">
                     <label for="exampleInputPassword2" class="form-label">Confirm Password</label>
-                    <input type="password" class="form-control" id="exampleInputPassword2">
+                    <input type="password" class="form-control" id="exampleInputPassword2" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" onclick="userRegistration();" class="btn btn-primary">Submit</button>
             </form>
         </div>
     </div>
 </section>
+{% endblock %}
+{% block javascript %} 
+<script>
+    function userRegistration(){        
+        $.ajax({
+            type : "POST",
+            url : "/register/",
+            data : {'username' : $('#exampleInputUsername').val(), 'email': $('#exampleInputEmail1').val(), 'password1': $('#exampleInputPassword1').val(), 'password2': $('#exampleInputPassword2').val()},
+            success : function(response) {     
+                if(response.success == true){     
+                     window.location.href = '/login/';
+                }else{
+                    alert("Something went wrong.")
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                alert(JSON.parse(xhr.responseText).non_field_errors)
+            }                        
+        });
+    }
+</script>
 {% endblock %}

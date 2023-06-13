@@ -7,19 +7,52 @@
 <div class="row">
     <div class="col-md-8 my-5 mx-auto">
         <h2 class="mb-3">Login</h2>
-        <form action="" method="post">
+        <form action="javascript:void(0);" method="#">
             <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Email address</label>
-                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-                <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+                <label for="exampleInputUsername" class="form-label">Username</label>
+                <input type="text" class="form-control" id="exampleInputUsername">
             </div>
             <div class="mb-3">
                 <label for="exampleInputPassword1" class="form-label">Password</label>
                 <input type="password" class="form-control" id="exampleInputPassword1">
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-            </form>
+            <button type="submit" onclick="userLogin()" class="btn btn-primary">Submit</button>          
+        </form>
+        {% for message in messages %}
+        <div class="alert alert-primary mt-2 " role="alert">
+            {{message}}
+        </div>
+        {% endfor %}
     </div>
 </div>
 </section>    
+{% endblock %}
+{% block javascript %} 
+<script>
+    function userLogin(){        
+        $.ajax({
+            type : "POST",
+            url : "/login/",
+            data : {'username' : $('#exampleInputUsername').val(), 'password': $('#exampleInputPassword1').val()},
+            success : function(response) {     
+                console.log(response.data);
+                if(response.success == true){ 
+                    sessionStorage.setItem('access_token', response.access_token);
+                    sessionStorage.setItem('refresh_token', response.refresh_token);    
+                    window.location.href = '/';
+                }else{
+                    alert(response)
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                if(xhr.status == 400){
+                    alert(JSON.parse(xhr.responseText).non_field_errors)
+                }
+                if(xhr.status == 401){
+                    alert(JSON.parse(xhr.responseText).error)
+                }
+            }                        
+        });
+    }
+</script>
 {% endblock %}

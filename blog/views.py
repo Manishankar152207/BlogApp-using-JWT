@@ -1,21 +1,87 @@
-from django.shortcuts import render
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect, get_object_or_404
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializers import UserRegistrationSerializer, UserLoginSerializer
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+import json
+from api.models import BlogPost, Tag, Category
+from django.urls import resolve
+from rest_framework_simplejwt.tokens import RefreshToken
+
 
 # Create your views here.
-def index(request):
-    return render(request, 'index.html')
+class IndexView(APIView):
+    def get(self, request):
+        posts = BlogPost.objects.all()
+        return render(request, 'index.html', context={'posts':posts, 'current_path':resolve(request.path).url_name})
 
-def register(request):
-    return render(request, 'register.html')
+class MyBlogView(APIView):
+    def delete(self, request, pk, format=None):        
+        posts = BlogPost.objects.filter(author=request.user)
+        return render(request, 'index.html', context={'posts':posts, 'current_path':resolve(request.path).url_name})
+    
+    def get(self, request):
+        print(request.COOKIES.get('refresh_token'))
+        posts = BlogPost.objects.filter(author=request.user)
+        return render(request, 'index.html', context={'posts':posts, 'current_path':resolve(request.path).url_name})
 
-def login(request):
-    return render(request, 'login.html')
+class AddBlogView(APIView):
+    def get(self, request):
+        tags = Tag.objects.all()
+        category = Category.objects.all()
+        return render(request, 'addblog.html', context={'tags': tags,'category': category, 'current_path':resolve(request.path).url_name})
 
-def myblog(request):
-    return render(request, 'index.html')
+class BlogDetailView(APIView):
+    def get(self, request, the_slug, format=None):
+        post = BlogPost.objects.filter(slug=the_slug).exists()
+        if post:
+            post = BlogPost.objects.filter(slug=the_slug).first()
+            posts = BlogPost.objects.all()
+            return render(request, 'blogdetail.html', context={'posts':posts, 'post':post, 'current_path':resolve(request.path).url_name})
+        else:
+            return render(request, 'page_404.html')
 
-def addblog(request):
-    return render(request, 'addblog.html')
+class UserRegistrationView(APIView):
+    def post(self, request):
+        serializer = UserRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            messages.success(request, "Registration successful. You can login now." )
+            return Response({"success":True}, status=201)
+        return Response(serializer.errors, status=400)
+    
+    def get(self, request):
+        return render(request, 'register.html', context={'current_path':resolve(request.path).url_name})
+    
+class UserLoginView(APIView):
+    def post(self, request):
+        serializer = UserLoginSerializer(data=request.data)
+        if serializer.is_valid():
+            username = serializer.validated_data['username']
+            password = serializer.validated_data['password']
 
-def blogdetail(request):
-    return render(request, 'blogdetail.html')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request=request, user=user)
+                refresh = RefreshToken.for_user(user)
+                messages.success(request, "You are logged in successfully." )
+                response = Response()
+                # response.set_cookie(key='refresh_token', value = str(refresh), httponly=True)
+                response.data = {'success': True, 'access_token': str(refresh.access_token), 'refresh_token':str(refresh)}
+                return response
+            else:
+                return Response({'success': False, 'error': 'Invalid credentials.'}, status=401)
+        else:
+            return Response(serializer.errors, status=400)
+    
+    def get(self, request):
+        return render(request, 'login.html', context={'current_path':resolve(request.path).url_name})
+
+def logout_view(request):
+    if request.user.is_authenticated:
+        logout(request)
+        messages.info(request, "You have successfully logged out.") 
+
+    return redirect('blog:login')
+        

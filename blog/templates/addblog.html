@@ -6,24 +6,92 @@
 <section class="container">
     <div class="row">
         <div class="col-md-8 my-5 mx-auto">
-            <h2 class="mb-3">Register</h2>
-            <form action="" method="post">
+            <h2 class="mb-3">Add Blog</h2>
+            <form action="javascript:void(0);"  id="blog-form">
                 <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Email address</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-                    <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" class="form-control" name="title" id="title">
                 </div>
                 <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="exampleInputPassword1">
+                    <label for="subtitle" class="form-label">Sub-Title</label>
+                    <input type="text" class="form-control" name="subtitle" id="subtitle">
                 </div>
                 <div class="mb-3">
-                    <label for="exampleInputPassword2" class="form-label">Confirm Password</label>
-                    <input type="password" class="form-control" id="exampleInputPassword2">
+                    <label for="slug" class="form-label">Slug</label>
+                    <input type="text" class="form-control" name="slug" id="slug">
+                </div>
+                <div class="mb-3">
+                    <label for="image" class="form-label">Image</label>
+                    <input type="file" class="form-control" name="image" id="fileInput">
+                </div>
+                <div class="mb-3">
+                    <label for="body" class="form-label">Body</label>
+                    <textarea class="form-control" name="body" id="body"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="meta_description" class="form-label">Meta Description</label>
+                    <input type="text" class="form-control" name="meta_description" id="meta_description">
+                </div>
+                <div class="mb-3">
+                    <label for="meta_keyword" class="form-label">Meta Keywords</label>
+                    <input type="text" class="form-control" name="meta_keyword" id="meta_keyword">
+                </div>
+                <div class="mb-3">
+                    <input type="hidden" class="form-control" name="author" value="{{user.id}}" id="author">
+                </div>
+                <div class="mb-3">
+                    <label for="tag" class="form-label">Tag</label>
+                    <select name="tag" id="tag" class="form-control" multiple>
+                        <option value="">Select</option>
+                        {% for tag in tags %}
+                            <option value="{{tag.id}}">{{tag.name}}</option>
+                        {% endfor %}                       
+                    </select>                   
+                </div>
+                <div class="mb-3">
+                    <label for="category" class="form-label">Category</label>
+                    <select name="category" id="category" class="form-control">
+                        <option value="">Select</option>
+                        {% for cat in category %}
+                            <option value="{{cat.id}}">{{cat.name}}</option>
+                        {% endfor %}                       
+                    </select>
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
         </div>
     </div>
 </section>
+{% endblock %}
+{% block javascript %} 
+<script>
+    $(document).ready(function() {
+        $('#blog-form').submit(function(event) {
+        event.preventDefault();  // Prevent the default form submission
+        const fileInput = document.getElementById('fileInput');
+        // Get the form data
+        var formData =  new FormData(this);
+        formData.append('image', fileInput.files[0])
+        console.log(formData);
+        var access_token = sessionStorage.getItem('access_token');
+        // Send the data via Ajax request
+        $.ajax({
+            url: '/api/posts/',
+            type: 'POST',
+            headers: {
+                        "Authorization": "Bearer " + access_token
+                    },
+            data: formData,
+            success: function(response) {
+            // Handle the success response
+            console.log(response);
+            },
+            error: function(xhr, errmsg, err) {
+            // Handle the error response
+            console.log(xhr.status + ': ' + xhr.responseText);
+            }
+        });
+        });
+  });
+</script>
 {% endblock %}
