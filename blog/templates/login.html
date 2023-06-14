@@ -51,6 +51,9 @@
                 if(xhr.status == 401){
                     alert(JSON.parse(xhr.responseText).error)
                 }
+                if(xhr.status == 500){
+                    alert("Internal server error.")          
+                }
             }                        
         });
     }

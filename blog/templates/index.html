@@ -24,7 +24,7 @@
                 <div class="card-body">
                     <a href="{% url 'blog:blogdetail' post.slug %}" style="text-decoration:none;"><h5 class="card-title text-dark">{{post.title}}</h5></a>
                     <p><strong>by {{post.author}}</strong></p>
-                    <p class="card-text"> {{post.subtitle}}</p>
+                    <p class="card-text"> {{post.subtitle |truncatewords:"50" }}</p>
                     <div class="{% if current_path == 'myblog' %} d-flex {% endif %}">
                         <a href="{% url 'blog:blogdetail' post.slug %}" class="btn btn-primary m-auto">Read more</a>
                         {% if current_path == 'myblog' %}
@@ -94,6 +94,9 @@
                     if(xhr.status == 401){
                         alert(JSON.parse(xhr.responseText).error)    
                         window.location.href = '/login/';                   
+                    }
+                    if(xhr.status == 500){
+                        alert("Internal server error.")          
                     }
                 }                        
             });
